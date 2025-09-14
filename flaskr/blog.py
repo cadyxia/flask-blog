@@ -73,3 +73,14 @@ def delete(id):
   db.execute('DELETE FROM post WHERE id = ?', (id,))
   db.commit()
   return redirect(url_for('blog.index'))
+
+@bp.route('/search', methods=('POST',))
+def search():
+  query = request.form['query']
+  db = get_db()
+  posts = db.execute("SELECT p.id, title, body, created, author_id, username "
+                     "FROM post p JOIN user u ON p.author_id = u.id "
+                     "WHERE body LIKE '%'||?||'%'  ORDER BY created DESC",
+                     (query,)).fetchall()
+  g.query = query
+  return render_template('blog/index.html', posts=posts)
