@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}{{ post['title'] }}{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  <article class="post">
+    <header>
+      <div>
+        <h2>by {{ post['username'] }} on {{ post['created'].strftime('%Y-%m-%d') }}</h2>
+      </div>
+      {% if g.user['id'] == post['author_id'] %}
+        <a class="action" href="{{ url_for('blog.update', id=post['id'])}}">Edit</a>
+        <form action="{{ url_for('blog.delete', id=post['id']) }}" method="post">
+          <input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
+        </form>
+      {% endif %}
+    </header>
+    <p class="body">{{ post['body'] }}</p>
+    <form action="{{ url_for('blog.comment') }}" method="post">
+      <label for="body">Comments</label>
+      <input name="body" id="body" required>
+      <input type="submit" value="Add comment">
+      <input type="hidden" name="post_id" id="post_id" value="{{ post['id'] }}">
+      <input type="hidden" name="author_id" id="author_id" value="{{ g.user['id'] }}">
+    </form>
+  </article>
+  {% for comment in comments %}
+    <article class="post">
+      <header>
+        <div>
+          <h3>{{ comment['username'] }}</h3>
+          <div class="about">{{ comment['created'].strftime('%Y-%m-%d') }}</div>
+        </div>
+      </header>
+      <p class="body">{{ comment['body'] }}</p>
+    </article>
+    {% if not loop.last %}
+      <hr>
+    {% endif %}
+  {% endfor %}
+{% endblock %}
